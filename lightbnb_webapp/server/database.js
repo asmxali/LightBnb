@@ -1,13 +1,8 @@
 const properties = require("./json/properties.json");
 const users = require("./json/users.json");
-const { Pool } = require("pg");
+const db = require('./db/index.js')
 const arg = process.argv[2];
-const pool = new Pool({
-  user: "vagrant",
-  password: "123",
-  host: "localhost",
-  database: "lightbnb"
-});
+
 /// Users
 
 /**
@@ -20,7 +15,7 @@ const pool = new Pool({
 // Accepts an email address and will return a promise.
 // The promise should resolve with the user that has that email address, or null if that user does not exist.
 const getUserWithEmail = function(email, limit = 1) {
-  return pool
+  return db
     .query(
       `
   SELECT *
@@ -41,7 +36,7 @@ exports.getUserWithEmail = getUserWithEmail;
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithId = function(id, limit = 1) {
-  return pool
+  return db
     .query(
       `
   SELECT *
@@ -62,7 +57,7 @@ exports.getUserWithId = getUserWithId;
  * @return {Promise<{}>} A promise to the user.
  */
 const addUser = function(user) {
-  return pool
+  return db
     .query(
       `
   INSERT INTO users (name, email, password)
@@ -83,7 +78,7 @@ exports.addUser = addUser;
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function(guest_id, limit = 10) {
-  return pool
+  return db
     .query(
       `
     SELECT reservations.*, properties.*, avg(rating) as average_rating
@@ -156,7 +151,7 @@ const getAllProperties = function(options, limit = 10) {
   console.log(queryString, queryParams);
 
   // 6
-  return pool.query(queryString, queryParams).then(res => res.rows);
+  return db.query(queryString, queryParams).then(res => res.rows);
 };
 
 exports.getAllProperties = getAllProperties;
@@ -167,7 +162,7 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  return pool
+  return db
     .query(
       `
   INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, street, city, province, post_code, country,  parking_spaces, number_of_bathrooms, number_of_bedrooms)
